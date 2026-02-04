@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=Righteous&display=swap');
+
+:root {
+  --color-bg: #0a0a0a;
+  --color-surface: #1a1a1a;
+  --color-primary: #ca8a04; /* Amber-600 */
+  --color-primary-glow: rgba(202, 138, 4, 0.5);
+  --color-text-main: #ffffff;
+  --color-text-muted: #a1a1a9;
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  margin: 0;
+  overflow: hidden; /* Prevent body scroll */
+  background: 
+    radial-gradient(at 0% 0%, hsla(280, 50%, 15%, 1) 0, transparent 50%), 
+    radial-gradient(at 50% 100%, hsla(340, 60%, 20%, 1) 0, transparent 50%), 
+    radial-gradient(at 100% 0%, hsla(35, 70%, 15%, 1) 0, transparent 50%);
+  background-color: #120515;
+  background-size: 200% 200%;
+  animation: gradient-animation 15s ease infinite;
+  color: var(--color-text-main);
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100vh; /* Fixed height */
+  display: flex;
+  flex-direction: column;
+}
+
+html {
+  overflow: hidden; /* Extra safety */
+  height: 100%;
+}
+
+@keyframes gradient-animation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+#app {
+  width: 100%;
+  max-width: 800px; /* Increased from 600px to allow shadows for 600px content */
+  margin: 0 auto;
+  padding: 0;
+  box-sizing: border-box;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  /* overflow: hidden removed to allow shadows to bleed */
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+button:focus {
+  outline: none;
+}
+
+/* Remove tap highlight globally */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  background: rgba(0, 0, 0, 0.1); /* Darker overlay for better text contrast */
+  backdrop-filter: blur(12px); /* Softer blur */
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08); /* Barely visible border */
+  border-radius: 24px; /* More rounded */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Minimal shadow */
+}
+
+.btn-primary {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-weight: 700;
+  padding: 16px 24px;
+  border-radius: 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-primary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}

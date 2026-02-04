@@ -1,0 +1,12 @@
+
+
+services:
+  app:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+    ports:
+      - "5173:5173"
+    # Keep the container running so we can exec into it if needed, or primarily for the dev server
+    command: sh -c "if [ -f package.json ]; then npm install && npm run dev -- --host; else echo 'Project not initialized. Run init command.'; tail -f /dev/null; fi"
