@@ -1,0 +1,10 @@
+{
+  "appId": "com.mixera.app",
+  "appName": "MixEra",
+  "webDir": "dist",
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
+}

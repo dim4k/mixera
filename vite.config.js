@@ -3,7 +3,8 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => ({
-  base: command === 'build' ? '/mixera/' : '/',
+  base: './',
+
   plugins: [vue()],
   server: {
     host: true,
@@ -14,7 +15,7 @@ export default defineConfig(({ command }) => ({
     hmr: {
       clientPort: 5173
     },
-    // Proxies to bypass CORS
+    // Proxies to bypass CORS (Only for local dev now)
     proxy: {
       '/api/deezer': { 
         target: 'https://api.deezer.com', 
@@ -23,5 +24,6 @@ export default defineConfig(({ command }) => ({
         rewrite: (path) => path.replace(/^\/api\/deezer/, '') 
       }
     }
+
   }
 }))

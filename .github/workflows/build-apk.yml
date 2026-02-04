@@ -1,0 +1,59 @@
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Web Assets
+        run: npm run build
+
+      - name: Add Capacitor Android Platform
+        # Run cap add just in case, though it should be committed usually. 
+        # Better to sync if platform exists, or add if not.
+        # Here we assume platform/android might not be in git if proxied/ignored, 
+        # but usually it IS in git. 
+        # If android folder is in .gitignore, we need to add it. 
+        # If it IS committed, we just sync.
+        # For safety/reproducibility often good to sync.
+        run: npx cap sync android
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build APK with Gradle
+        working-directory: android
+        run: ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: mixera-debug.apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk

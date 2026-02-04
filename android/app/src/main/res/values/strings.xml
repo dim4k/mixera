@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MixEra</string>
+    <string name="title_activity_main">MixEra</string>
+    <string name="package_name">com.mixera.app</string>
+    <string name="custom_url_scheme">com.mixera.app</string>
+</resources>

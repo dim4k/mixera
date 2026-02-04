@@ -9,6 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@capacitor/android": "^8.0.2",
+    "@capacitor/cli": "^8.0.2",
+    "@capacitor/core": "^8.0.2",
+    "@capacitor/http": "^0.0.2",
     "html5-qrcode": "^2.3.8",
     "lucide-vue-next": "^0.563.0",
     "vue": "^3.5.24",
