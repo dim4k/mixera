@@ -5,7 +5,7 @@ export const fetchDeezerTrack = async (rawSong) => {
     if (isLocal) {
         try {
             const response = await fetch(`/api/deezer/search?q=${query}`);
-            if (!response.ok) throw new Error(`Local fetch failed: ${response.status}`);
+            if (!response.ok) throw new Error(`Vite Proxy failed: ${response.status}`);
             const data = await response.json();
             return processTrackData(data, rawSong.year);
         } catch (err) {
@@ -14,47 +14,52 @@ export const fetchDeezerTrack = async (rawSong) => {
         }
     }
 
-    // --- Production Fallback System ---
+    // --- Production Multi-Proxy Strategy ---
     const targetUrl = `https://api.deezer.com/search?q=${query}`;
     
-    // Strategy 1: AllOrigins (via /get to avoid raw string issues)
+    // Strategy A: AllOrigins JSON Wrapper (Stable but sometimes 408)
     try {
         const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`);
         if (response.ok) {
             const json = await response.json();
             if (json.contents) {
                 const data = JSON.parse(json.contents);
-                return processTrackData(data, rawSong.year);
+                if (data && data.data) return processTrackData(data, rawSong.year);
             }
         }
-    } catch (e) {
-        console.warn("AllOrigins attempt failed, trying fallback...");
-    }
+    } catch (e) { console.warn("Proxy A (AllOrigins JSON) failed."); }
 
-    // Strategy 2: CorsProxy.io (as fallback)
+    // Strategy B: Codetabs (Direct RAW proxy, usually very fast)
     try {
-        const response = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`);
+        const response = await fetch(`https://api.codetabs.com/v1/proxy?quest=${targetUrl}`);
         if (response.ok) {
             const data = await response.json();
-            return processTrackData(data, rawSong.year);
+            if (data && data.data) return processTrackData(data, rawSong.year);
         }
-    } catch (e) {
-        console.warn("CorsProxy attempt failed.");
-    }
+    } catch (e) { console.warn("Proxy B (Codetabs) failed."); }
 
-    throw new Error("Impossible de récupérer les données musicales (Proxies HS)");
+    // Strategy C: AllOrigins RAW (Last resort fallback)
+    try {
+        const response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`);
+        if (response.ok) {
+            const data = await response.json();
+            if (data && data.data) return processTrackData(data, rawSong.year);
+        }
+    } catch (e) { console.warn("Proxy C (AllOrigins RAW) failed."); }
+
+    throw new Error("Toutes les tentatives de connexion au serveur musical ont échoué. Veuillez réessayer dans quelques instants.");
 };
 
 const processTrackData = (data, year) => {
-    if (!data || !data.data || data.data.length === 0) throw new Error("No track found");
+    if (!data || !data.data || data.data.length === 0) throw new Error("Aucun morceau trouvé.");
     const track = data.data[0];
-    if (!track.preview) throw new Error("No preview available");
+    if (!track.preview) throw new Error("Aperçu non disponible.");
     
     return {
         title: track.title,
         artist: track.artist.name,
         year: year,
-        cover: track.album.cover_xl || track.album.cover_medium,
+        cover: track.album.cover_xl || track.album.cover_medium || "",
         preview: track.preview
     };
 };

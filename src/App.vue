@@ -255,7 +255,7 @@ const currentModeLabel = computed(() => {
               @play-request="playHitsterTrack"
               @toggle-play="toggleHitsterPlay"
               @set-error="(e) => audioError = e"
-              @update-cover="(url) => currentCover = url"
+              @update-cover="updateBackground"
             />
             
             <BlindtestPlayer 
@@ -271,7 +271,7 @@ const currentModeLabel = computed(() => {
               :minYear="MIN_YEAR"
               :maxYear="MAX_YEAR"
               :genres="genres"
-              @update-cover="(url) => currentCover = url"
+              @update-cover="updateBackground"
               @found-all="handleBlindtestWin"
             />
             <!-- Note: isPlaying for blindtest is effectively managed by useAudio internally/globally 
@@ -318,8 +318,8 @@ const currentModeLabel = computed(() => {
     </div>
     
     <!-- Dynamic BG Crossfade Layers -->
-    <div class="dynamic-bg" :class="{ 'active': isBgAActive, 'has-cover': currentCoverA }" :style="currentCoverA ? { backgroundImage: `url(${currentCoverA})` } : {}"></div>
-    <div class="dynamic-bg" :class="{ 'active': !isBgAActive, 'has-cover': currentCoverB }" :style="currentCoverB ? { backgroundImage: `url(${currentCoverB})` } : {}"></div>
+    <div class="dynamic-bg" :class="{ 'active': isBgAActive, 'has-cover': !!currentCoverA }" :style="currentCoverA ? { '--bg-img': `url(${currentCoverA})` } : {}"></div>
+    <div class="dynamic-bg" :class="{ 'active': !isBgAActive, 'has-cover': !!currentCoverB }" :style="currentCoverB ? { '--bg-img': `url(${currentCoverB})` } : {}"></div>
   </div>
 </template>
 
@@ -345,6 +345,6 @@ const currentModeLabel = computed(() => {
 .fade-enter-active, .fade-leave-active { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 .fade-enter-from { opacity: 0; transform: scale(0.98) translateY(10px); filter: blur(10px); }
 .fade-leave-to { opacity: 0; transform: scale(1.02) translateY(-10px); filter: blur(10px); }
-.dynamic-bg { position: fixed; top: -50%; left: -50%; width: 200vw; height: 200vh; background-size: cover; background-position: center; background-repeat: no-repeat; z-index: -1; filter: blur(60px) brightness(0.9) saturate(1.8); opacity: 0; transition: opacity 2s ease-in-out; pointer-events: none; }
+.dynamic-bg { position: fixed; top: -50%; left: -50%; width: 200vw; height: 200vh; background-image: var(--bg-img); background-size: cover; background-position: center; background-repeat: no-repeat; z-index: -1; filter: blur(60px) brightness(0.9) saturate(1.8); opacity: 0; transition: opacity 2s ease-in-out; pointer-events: none; }
 .dynamic-bg.active.has-cover { opacity: 1; }
 </style>
