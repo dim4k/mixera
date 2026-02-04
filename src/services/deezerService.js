@@ -1,7 +1,17 @@
 export const fetchDeezerTrack = async (rawSong) => {
      const query = encodeURIComponent(`${rawSong.artist} ${rawSong.title}`);
-     const response = await fetch(`/api/deezer/search?q=${query}`);
-     const data = await response.json();
+     
+     // Vite proxy /api/deezer/ only works in dev mode.
+     // For GitHub Pages (Static site), we call the API directly via a CORS proxy.
+     const targetUrl = `https://api.deezer.com/search?q=${query}`;
+     const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+     
+     const response = await fetch(proxyUrl);
+     const result = await response.json();
+     
+     // AllOrigins returns the stringified response in a 'contents' field
+     const data = JSON.parse(result.contents);
+     
      if (!data.data || data.data.length === 0) throw new Error("No track");
      const track = data.data[0];
      if (!track.preview) throw new Error("No preview");
