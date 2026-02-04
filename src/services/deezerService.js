@@ -10,9 +10,9 @@ export const fetchDeezerTrack = async (rawSong) => {
             const response = await fetch(`/api/deezer/search?q=${query}`);
             data = await response.json();
         } else {
-            // Production: Use corsproxy.io wrapper
+            // Production: Use allorigins raw proxy (more permissive for Deezer)
             const targetUrl = `https://api.deezer.com/search?q=${query}`;
-            const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
             const response = await fetch(proxyUrl);
             data = await response.json();
         }
