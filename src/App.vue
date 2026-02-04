@@ -318,8 +318,8 @@ const currentModeLabel = computed(() => {
     </div>
     
     <!-- Dynamic BG Crossfade Layers -->
-    <div class="dynamic-bg" :class="{ 'active': isBgAActive, 'has-cover': currentCoverA }" :style="{ backgroundImage: `url(${currentCoverA})` }"></div>
-    <div class="dynamic-bg" :class="{ 'active': !isBgAActive, 'has-cover': currentCoverB }" :style="{ backgroundImage: `url(${currentCoverB})` }"></div>
+    <div class="dynamic-bg" :class="{ 'active': isBgAActive, 'has-cover': currentCoverA }" :style="currentCoverA ? { backgroundImage: `url(${currentCoverA})` } : {}"></div>
+    <div class="dynamic-bg" :class="{ 'active': !isBgAActive, 'has-cover': currentCoverB }" :style="currentCoverB ? { backgroundImage: `url(${currentCoverB})` } : {}"></div>
   </div>
 </template>
 

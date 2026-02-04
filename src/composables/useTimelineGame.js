@@ -68,7 +68,7 @@ export function useTimelineGame() {
             
         } catch (e) {
              console.error("Timeline fetch error", e);
-             setTimeout(startTimelineRound, 500); // Retry with delay
+             setTimeout(startTimelineRound, 2000); // Retry with longer delay to avoid 429
         }
     };
 

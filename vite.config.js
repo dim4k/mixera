@@ -2,8 +2,8 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  base: '/mixera/',
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? '/mixera/' : '/',
   plugins: [vue()],
   server: {
     host: true,
@@ -24,4 +24,4 @@ export default defineConfig({
       }
     }
   }
-})
+}))
