@@ -6,7 +6,7 @@
   <p>
     <strong>A premium, modern music time machine quiz. Guess the years, test your knowledge.</strong>
     <br />
-    <a href="https://ton-pseudo.github.io/mixera/"><strong>🌐 Play MixEra Online</strong></a>
+    <a href="https://dim4k.github.io/mixera/"><strong>🌐 Play MixEra Online</strong></a>
   </p>
 
   <p>
