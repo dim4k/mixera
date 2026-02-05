@@ -5,13 +5,15 @@ import HitsterPlayer from './components/HitsterPlayer.vue';
 import BlindtestPlayer from './components/BlindtestPlayer.vue';
 import TimelinePlayer from './components/TimelinePlayer.vue';
 import BullseyePlayer from './components/BullseyePlayer.vue';
+import MemoryGame from './components/MemoryGame.vue';
 import { resolveHitsterUrl } from './utils/resolver';
-import { Music, Scan, Disc, Calendar, Target } from 'lucide-vue-next';
+import { Music, Scan, Disc, Calendar, Target, Brain } from 'lucide-vue-next';
 
 // Composables
 import { useBlindtestGame } from './composables/useBlindtestGame';
 import { useTimelineGame } from './composables/useTimelineGame';
 import { useBullseyeGame } from './composables/useBullseyeGame';
+import { useMemoryGame } from './composables/useMemoryGame';
 import { useAudio } from './composables/useAudio';
 
 const { 
@@ -55,11 +57,17 @@ const {
     resetBullseyeGame
 } = useBullseyeGame();
 
+const {
+    currentPlayingTrack: memSong,
+    initMemoryGame,
+    resetMemoryGame
+} = useMemoryGame();
+
 const { stopAudio, audioError, playAudio, pauseAudio, resumeAudio, isPlaying: isAudioPlaying } = useAudio();
 
 // --- Global UI State ---
-const gameMode = ref(null); // 'hitster' | 'blindtest' | 'timeline'
-const currentView = ref('scanner'); // 'scanner' | 'player' | 'blindtest-player' | 'timeline-player'
+const gameMode = ref(null); // 'hitster' | 'blindtest' | 'timeline' | 'bullseye' | 'memory'
+const currentView = ref('scanner'); // 'scanner' | 'player' | 'blindtest-player' | 'timeline-player' | 'bullseye-player' | 'memory-player'
 const hasStarted = ref(false);
 const scanError = ref(null);
 const currentCoverA = ref(null);
@@ -134,6 +142,9 @@ const setGameMode = (mode) => {
   } else if (mode === 'bullseye') {
     currentView.value = 'bullseye-player';
     startBullseyeRound();
+  } else if (mode === 'memory') {
+    currentView.value = 'memory-player';
+    initMemoryGame(); 
   } else if (mode === 'hitster') {
      currentView.value = 'scanner';
   }
@@ -146,6 +157,7 @@ const reset = () => {
     resetBlindtestGame();
     resetTimelineGame();
     resetBullseyeGame();
+    resetMemoryGame();
 
     hasStarted.value = false;
     gameMode.value = null;
@@ -231,6 +243,9 @@ watch(timelineMysterySong, (newSong) => {
 watch(beSong, (newSong) => {
     if (newSong && newSong.cover) updateBackground(newSong.cover);
 });
+watch(memSong, (newSong) => {
+    if (newSong && newSong.cover) updateBackground(newSong.cover);
+});
 
 // Label
 const currentModeLabel = computed(() => {
@@ -238,6 +253,7 @@ const currentModeLabel = computed(() => {
         case 'blindtest': return 'Blindtest';
         case 'timeline': return 'Timeline';
         case 'bullseye': return 'Bullseye';
+        case 'memory': return 'Memory';
         case 'hitster': return 'Hitster';
         default: return 'Music Time Machine';
     }
@@ -280,6 +296,10 @@ const currentModeLabel = computed(() => {
             <button class="btn-primary btn-mode btn-bullseye" @click="setGameMode('bullseye')">
                <Target size="24" />
                <div class="mode-info"><span class="mode-name">Bullseye</span><span class="mode-desc">Année Exacte</span></div>
+            </button>
+            <button class="btn-primary btn-mode btn-memory" @click="setGameMode('memory')">
+               <Brain size="24" />
+               <div class="mode-info"><span class="mode-name">Memory</span><span class="mode-desc">Paires Audio</span></div>
             </button>
         </div>
       </div>
@@ -351,6 +371,10 @@ const currentModeLabel = computed(() => {
                :lastPoints="lastPointsEarned"
                @submit-guess="submitYearGuess"
                @next-song="startBullseyeRound"
+            />
+
+            <MemoryGame
+               v-else-if="currentView === 'memory-player'"
             />
           </div>
         </Transition>

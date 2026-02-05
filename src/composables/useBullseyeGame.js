@@ -31,6 +31,7 @@ export function useBullseyeGame() {
 
     let bullseyeTimer = null;
     let autoNextTimeout = null;
+    let gameSessionId = 0;
 
     const fetchRandomSong = async (retryCount = 0) => {
         const uniqueSongs = Object.values(hitsterDb).reduce((acc, song) => {
@@ -61,6 +62,7 @@ export function useBullseyeGame() {
     };
 
     const startBullseyeRound = async () => {
+        const sessionId = gameSessionId;
         // Guard: Prevent starting if already loading/processing
         if (isLoading.value) return;
 
@@ -81,10 +83,13 @@ export function useBullseyeGame() {
 
         try {
             const next = await fetchRandomSong();
+            if (sessionId !== gameSessionId) return;
+
             currentSong.value = next;
             isLoading.value = false;
 
             await playAudio(next.preview);
+            if (sessionId !== gameSessionId) return;
 
             const TOTAL_DURATION = 20000;
             const startTime = Date.now();
@@ -94,6 +99,11 @@ export function useBullseyeGame() {
             if (bullseyeTimer) clearInterval(bullseyeTimer);
 
             bullseyeTimer = setInterval(() => {
+                if (sessionId !== gameSessionId) {
+                    clearInterval(bullseyeTimer);
+                    return;
+                }
+
                 const elapsed = Date.now() - startTime;
                 
                 // Progress bar now covers the full 20s
@@ -113,6 +123,7 @@ export function useBullseyeGame() {
             }, 100);
 
         } catch (e) {
+            if (sessionId !== gameSessionId) return;
             console.error("Bullseye Start Error:", e);
             error.value = "Erreur de chargement";
             isLoading.value = false;
@@ -120,6 +131,7 @@ export function useBullseyeGame() {
     };
 
     const submitYearGuess = (guessedYear) => {
+        const sessionId = gameSessionId;
         if (isRevealed.value) return; // Prevent double submit
         if (bullseyeTimer) clearInterval(bullseyeTimer);
 
@@ -148,12 +160,14 @@ export function useBullseyeGame() {
 
         // Auto next after 8 seconds
         autoNextTimeout = setTimeout(async () => {
+            if (sessionId !== gameSessionId) return;
             await fadeOutAudio(2000);
-            startBullseyeRound();
+            if (sessionId === gameSessionId) startBullseyeRound();
         }, 8000);
     };
 
     const resetBullseyeGame = () => {
+        gameSessionId++;
         stopAudio();
         if (bullseyeTimer) clearInterval(bullseyeTimer);
         if (autoNextTimeout) clearTimeout(autoNextTimeout);

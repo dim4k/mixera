@@ -11,6 +11,7 @@ const timelineStreak = ref(0);
 const timelineFeedback = ref(null); // 'correct' | 'wrong' | 'timeout' | null
 const timelineCorrectAnswer = ref(null); // 'before' | 'after'
 let timelineTimer = null;
+let gameSessionId = 0;
 
 // Initialize History from LocalStorage
 const loadTimelineHistory = () => {
@@ -25,6 +26,7 @@ export function useTimelineGame() {
     const { playAudio, fadeOutAudio, stopAudio } = useAudio();
 
     const startTimelineRound = async () => {
+        const sessionId = gameSessionId;
         if (timelineTimer) clearTimeout(timelineTimer);
         
         // Pick Mystery Song
@@ -52,6 +54,7 @@ export function useTimelineGame() {
         
         try {
             const track = await fetchDeezerTrack(rawMyst);
+            if (sessionId !== gameSessionId) return;
             
             timelineFeedback.value = null; // Hide previous result
             timelineMysterySong.value = track; // Swap song data
@@ -63,16 +66,21 @@ export function useTimelineGame() {
             
             // Start Timer
             timelineTimer = setTimeout(() => {
-                handleTimelineGuess(null);
+                if (sessionId === gameSessionId) handleTimelineGuess(null);
             }, 20000);
             
         } catch (e) {
              console.error("Timeline fetch error", e);
-             setTimeout(startTimelineRound, 2000); // Retry with longer delay to avoid 429
+             if (sessionId === gameSessionId) {
+                setTimeout(() => {
+                    if (sessionId === gameSessionId) startTimelineRound();
+                }, 2000); // Retry with longer delay to avoid 429
+             }
         }
     };
 
     const handleTimelineGuess = (direction) => {
+        const sessionId = gameSessionId;
         if (timelineTimer) clearTimeout(timelineTimer);
         
         const isTimeout = direction === null;
@@ -84,22 +92,27 @@ export function useTimelineGame() {
             
             // Wait 2s, then fade out and swap
             setTimeout(async () => {
+                 if (sessionId !== gameSessionId) return;
                  await fadeOutAudio(1000); 
-                 startTimelineRound();
+                 if (sessionId === gameSessionId) startTimelineRound();
             }, 2000); 
         } else {
             timelineFeedback.value = isTimeout ? 'timeout' : 'wrong';
             
             // Keep music for 5s, then fade out
             setTimeout(async () => {
+                if (sessionId !== gameSessionId) return;
                 await fadeOutAudio(2000);
-                if (timelineFeedback.value !== 'correct') timelineStreak.value = 0;
-                startTimelineRound();
+                if (sessionId === gameSessionId) {
+                    if (timelineFeedback.value !== 'correct') timelineStreak.value = 0;
+                    startTimelineRound();
+                }
             }, 5000);
         }
     };
 
     const resetTimelineGame = () => {
+        gameSessionId++;
         stopAudio();
         if (timelineTimer) clearTimeout(timelineTimer);
         timelineStreak.value = 0;

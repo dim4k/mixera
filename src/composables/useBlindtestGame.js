@@ -54,6 +54,7 @@ export function useBlindtestGame() {
     const nextBlindtestSong = ref(null);
     let blindtestTimer = null;
     let winTimeout = null;
+    let gameSessionId = 0;
 
     // Genres Computed
     const genres = computed(() => {
@@ -120,8 +121,12 @@ export function useBlindtestGame() {
     };
 
     const preloadNextTrack = async () => {
+        const sessionId = gameSessionId;
         try {
-            nextBlindtestSong.value = await fetchRandomSong();
+            const track = await fetchRandomSong();
+            if (sessionId === gameSessionId) {
+                nextBlindtestSong.value = track;
+            }
         } catch (e) { /* Filters issue or network */ }
     };
 
@@ -131,6 +136,8 @@ export function useBlindtestGame() {
     });
 
     const playNextdtTrack = async () => {
+        const sessionId = gameSessionId;
+
         // Cleanup
         if (blindtestTimer) clearInterval(blindtestTimer);
         if (winTimeout) clearTimeout(winTimeout);
@@ -143,13 +150,18 @@ export function useBlindtestGame() {
             stopAudio(); // Silence while loading
             try {
                 next = await fetchRandomSong();
+                if (sessionId !== gameSessionId) return;
             } catch (e) {
+                if (sessionId !== gameSessionId) return;
+
                 if (e.message === 'EMPTY_FILTER') {
                     error.value = "Aucun titre trouvé avec ces filtres !";
                     isLoading.value = false;
                     return;
                 }
-                setTimeout(playNextdtTrack, 1000);
+                setTimeout(() => {
+                    if (sessionId === gameSessionId) playNextdtTrack();
+                }, 1000);
                 return;
             }
         }
@@ -166,7 +178,8 @@ export function useBlindtestGame() {
         // Let's manage timer here because it updates mysteryProgress
         
         await playAudio(next.preview);
-        
+        if (sessionId !== gameSessionId) return;
+
         // Start Reveal Timer
         const REVEAL_TIME = 20000;
         const TOTAL_DURATION = 30000;
@@ -174,6 +187,11 @@ export function useBlindtestGame() {
         let isFadingOut = false;
         
         blindtestTimer = setInterval(async () => {
+             if (sessionId !== gameSessionId) {
+                 clearInterval(blindtestTimer);
+                 return;
+             }
+
              const elapsed = Date.now() - startTime;
              if (elapsed < REVEAL_TIME) {
                  mysteryProgress.value = (elapsed / REVEAL_TIME) * 100;
@@ -198,6 +216,7 @@ export function useBlindtestGame() {
     };
 
     const handleWin = () => {
+        const sessionId = gameSessionId;
         if (blindtestTimer) clearInterval(blindtestTimer);
         isRevealed.value = true;
         mysteryProgress.value = 100;
@@ -205,12 +224,14 @@ export function useBlindtestGame() {
         if (winTimeout) clearTimeout(winTimeout);
         
         winTimeout = setTimeout(async () => {
+            if (sessionId !== gameSessionId) return;
             await fadeOutAudio(2000);
-            playNextdtTrack();
+            if (sessionId === gameSessionId) playNextdtTrack();
         }, 8000);
     };
 
     const resetBlindtestGame = () => {
+        gameSessionId++;
         if (blindtestTimer) clearInterval(blindtestTimer);
         if (winTimeout) clearTimeout(winTimeout);
         stopAudio();
