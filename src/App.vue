@@ -77,6 +77,21 @@ const isHitsterPlaying = computed(() => {
     return false;
 }); 
 
+// --- Keep Awake Logic ---
+import { KeepAwake } from '@capacitor-community/keep-awake';
+
+watch(gameMode, async (newMode) => {
+    try {
+        if (newMode) {
+            await KeepAwake.keepAwake();
+        } else {
+            await KeepAwake.allowSleep();
+        }
+    } catch (err) {
+        console.warn('KeepAwake error (non-native?):', err);
+    }
+});
+
 // --- YouTube Official Player (Global) ---
 const playerRef = ref(null);
 onMounted(() => {
@@ -264,7 +279,7 @@ const currentModeLabel = computed(() => {
             </button>
             <button class="btn-primary btn-mode btn-bullseye" @click="setGameMode('bullseye')">
                <Target size="24" />
-               <div class="mode-info"><span class="mode-name">Bullseye</span><span class="mode-desc">Année Exacte (100pt)</span></div>
+               <div class="mode-info"><span class="mode-name">Bullseye</span><span class="mode-desc">Année Exacte</span></div>
             </button>
         </div>
       </div>

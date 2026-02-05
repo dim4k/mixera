@@ -5,6 +5,13 @@
   "plugins": {
     "CapacitorHttp": {
       "enabled": true
+    },
+    "SplashScreen": {
+      "backgroundColor": "#1a1a1a",
+      "launchShowDuration": 2000,
+      "launchAutoHide": true,
+      "androidSplashResourceName": "splash",
+      "showSpinner": false
     }
   }
 }

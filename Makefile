@@ -1,7 +1,7 @@
 # MixEra Automation (Docker Only)
 
 # Variables
-PROJECT_DIR := $(shell pwd)
+PROJECT_DIR := $(CURDIR)
 BUILDER_IMAGE := mobile-builder
 DOCKER_RUN := docker run --rm -v "$(PROJECT_DIR):/project" -w /project $(BUILDER_IMAGE)
 
