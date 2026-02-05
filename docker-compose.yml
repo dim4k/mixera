@@ -10,3 +10,18 @@ services:
       - "5173:5173"
     # Keep the container running so we can exec into it if needed, or primarily for the dev server
     command: sh -c "if [ -f package.json ]; then npm install && npm run dev -- --host; else echo 'Project not initialized. Run init command.'; tail -f /dev/null; fi"
+
+  android-build:
+    build:
+      context: .
+      dockerfile: Dockerfile.android
+    working_dir: /app
+    volumes:
+      - .:/app
+      # Persist gradle cache to speed up subsequent builds
+      - gradle-cache:/root/.gradle
+    command: tail -f /dev/null
+
+volumes:
+  gradle-cache:
+

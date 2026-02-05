@@ -61,8 +61,17 @@ export function useBullseyeGame() {
     };
 
     const startBullseyeRound = async () => {
-        if (bullseyeTimer) clearInterval(bullseyeTimer);
-        if (autoNextTimeout) clearTimeout(autoNextTimeout);
+        // Guard: Prevent starting if already loading/processing
+        if (isLoading.value) return;
+
+        if (bullseyeTimer) {
+            clearInterval(bullseyeTimer);
+            bullseyeTimer = null;
+        }
+        if (autoNextTimeout) {
+            clearTimeout(autoNextTimeout);
+            autoNextTimeout = null;
+        }
 
         isLoading.value = true;
         isRevealed.value = false;
@@ -81,6 +90,9 @@ export function useBullseyeGame() {
             const startTime = Date.now();
             let isFadingOut = false;
 
+            // Ensure no rogue interval if state changed rapidly
+            if (bullseyeTimer) clearInterval(bullseyeTimer);
+
             bullseyeTimer = setInterval(() => {
                 const elapsed = Date.now() - startTime;
                 
@@ -94,12 +106,14 @@ export function useBullseyeGame() {
 
                 if (elapsed >= TOTAL_DURATION) {
                     clearInterval(bullseyeTimer);
+                    bullseyeTimer = null;
                     // On timeout, reveal automatically
                     if (!isRevealed.value) submitYearGuess(null);
                 }
             }, 100);
 
         } catch (e) {
+            console.error("Bullseye Start Error:", e);
             error.value = "Erreur de chargement";
             isLoading.value = false;
         }

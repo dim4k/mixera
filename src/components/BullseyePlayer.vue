@@ -29,9 +29,9 @@ const handleConfirm = () => {
     emit('submit-guess', guessedYear.value);
 };
 
-watch(() => props.song, () => {
-    guessedYear.value = 1990;
-});
+// watch(() => props.song, () => {
+//     guessedYear.value = 1990;
+// });
 </script>
 
 <template>
@@ -206,14 +206,26 @@ watch(() => props.song, () => {
     flex-direction: column;
     justify-content: center;
 }
-.track-title { font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0; }
+.track-title { 
+    font-size: 1.6rem; 
+    font-weight: 800; 
+    color: #fff; 
+    margin: 0;
+    
+    /* Truncate after 2 lines */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 .track-title.found { color: #4ade80; }
 .track-artist { font-size: 1.1rem; color: #fbbf24; font-weight: 700; text-transform: uppercase; margin: 0.5rem 0 0 0; }
 .track-artist.found { color: #4ade80; }
 .mystery-title { font-size: 2rem; color: rgba(255,255,255,0.3); letter-spacing: 0.5rem; }
 .mystery-artist { opacity: 0.4; }
 
-.action-area { width: 100%; min-height: 280px; display: flex; flex-direction: column; justify-content: flex-start; }
+.action-area { width: 100%; height: 240px; display: flex; flex-direction: column; justify-content: flex-start; }
 
 .guess-phase, .result-phase { 
     display: flex; 
@@ -271,10 +283,12 @@ watch(() => props.song, () => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2rem;
-    padding-top: 2rem;
+    gap: 1rem;
+    padding-top: 0.5rem;
+
 }
-.result-points { font-size: 3rem; font-weight: 900; filter: drop-shadow(0 0 20px currentColor); }
+.result-points { font-size: 2rem; font-weight: 900; filter: drop-shadow(0 0 20px currentColor); display: flex; flex-direction: column; align-items: center; text-align: center; }
+
 .actual-year { font-size: 1.2rem; }
 .actual-year strong { color: #fbbf24; font-size: 1.8rem; }
 

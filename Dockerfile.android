@@ -1,0 +1,37 @@
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# 1. Install Basics & Java 21
+RUN apt-get update && \
+    apt-get install -y curl unzip git openjdk-21-jdk wget gnupg2 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+
+ENV PATH=$JAVA_HOME/bin:$PATH
+
+# 2. Install Node.js 22
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get install -y nodejs
+
+# 3. Install Android SDK
+ENV ANDROID_HOME=/opt/android-sdk
+ENV PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
+
+RUN mkdir -p $ANDROID_HOME/cmdline-tools
+
+# Download Command Line Tools (latest as of writing, equivalent to Android Studio's)
+RUN wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip && \
+    unzip -q cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools && \
+    mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest && \
+    rm cmdline-tools.zip
+
+# Accept Licenses
+RUN yes | sdkmanager --licenses
+
+# Install minimum platform tools (Gradle will install specific build-tools versions automatically)
+RUN sdkmanager "platform-tools" "platforms;android-34"
+
+WORKDIR /app

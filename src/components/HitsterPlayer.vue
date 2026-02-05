@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, onUnmounted } from 'vue';
+import { computed, onMounted, ref, onUnmounted, watch } from 'vue';
 import { ArrowLeft, Play, Pause, Loader2, Eye, EyeOff, ScanLine } from 'lucide-vue-next';
 
 // Receive global audio state from parent
@@ -7,7 +7,7 @@ const props = defineProps(['song', 'isPlaying', 'audioError']);
 const emit = defineEmits(['back', 'play-request', 'toggle-play', 'set-error', 'update-cover']);
 
 // Local proxy for Deezer API
-const DEEZER_PROXY = '/api/deezer';
+import { fetchDeezerTrack } from '../services/deezerService';
 
 const isLoading = ref(true);
 
@@ -33,30 +33,13 @@ const loadAudio = async () => {
   }
   
   try {
-    // Search on Deezer using Artist + Title
-    const query = encodeURIComponent(`${props.song.artist} ${props.song.title}`);
-    const response = await fetch(`${DEEZER_PROXY}/search?q=${query}`);
-    
-    if (!response.ok) throw new Error(`Erreur API Deezer (${response.status})`);
-    
-    const data = await response.json();
-    
-    if (!data.data || data.data.length === 0) {
-      throw new Error("Titre non trouvé sur Deezer.");
-    }
-
-    // Take the first result
-    const track = data.data[0];
-    const previewUrl = track.preview;
+    // Use centralized service that handles Native/Proxy logic
+    const track = await fetchDeezerTrack(props.song);
     
     // Store track info for UI (Cover, etc.)
-    trackInfo.value = {
-      title: track.title,
-      artist: track.artist.name,
-      album: track.album.title,
-      cover: track.album.cover_xl || track.album.cover_medium,
-      year: props.song.year
-    };
+    trackInfo.value = track;
+    
+    const previewUrl = track.preview;
     
     // Emit cover to parent for global background
     if (trackInfo.value.cover) {
@@ -85,6 +68,16 @@ const togglePlay = () => {
 const toggleReveal = () => {
   isRevealed.value = !isRevealed.value;
 };
+
+// Fallback: If YouTube fails, try Deezer preview
+// Fallback: If YouTube fails, try Deezer preview (Watching both dependencies)
+watch([() => props.audioError, trackInfo], ([err, info]) => {
+    if (err && err.includes('YouTube') && info?.preview) {
+        console.warn("YouTube failed, falling back to Deezer preview...");
+        emit('set-error', null); // Clear error
+        emit('play-request', info.preview, 'audio');
+    }
+});
 </script>
 
 <template>
@@ -298,11 +291,21 @@ const toggleReveal = () => {
 }
 
 .title-text {
-  font-size: 2rem;
-  font-weight: 900;
-  color: rgba(255,255,255,0.7); /* Slightly brighter */
-  letter-spacing: 0.2rem;
-  text-shadow: 0 0 20px rgba(0,0,0,0.8);
+  font-size: 1.8rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 0 0.5rem 0;
+  color: #fff;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+  
+  /* Truncation */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .artist-text {

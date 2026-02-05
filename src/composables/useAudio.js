@@ -84,6 +84,24 @@ export function useAudio() {
         isPlaying.value = false;
     };
 
+    const pauseAudio = () => {
+        if (globalAudio.value) {
+            globalAudio.value.pause();
+            isPlaying.value = false;
+        }
+    };
+
+    const resumeAudio = async () => {
+        if (globalAudio.value) {
+            try {
+                await globalAudio.value.play();
+                isPlaying.value = true;
+            } catch (e) {
+                console.error("Resume Error:", e);
+            }
+        }
+    };
+
     return {
         // State
         globalAudio,
@@ -93,6 +111,10 @@ export function useAudio() {
         // Methods
         playAudio,
         fadeOutAudio,
-        stopAudio
+        playAudio,
+        fadeOutAudio,
+        stopAudio,
+        pauseAudio,
+        resumeAudio
     };
 }

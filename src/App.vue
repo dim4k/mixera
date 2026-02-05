@@ -55,7 +55,7 @@ const {
     resetBullseyeGame
 } = useBullseyeGame();
 
-const { stopAudio, audioError } = useAudio();
+const { stopAudio, audioError, playAudio, pauseAudio, resumeAudio, isPlaying: isAudioPlaying } = useAudio();
 
 // --- Global UI State ---
 const gameMode = ref(null); // 'hitster' | 'blindtest' | 'timeline'
@@ -69,7 +69,13 @@ const currentCover = computed(() => isBgAActive.value ? currentCoverA.value : cu
 
 // --- Hitster (Scan) State ---
 const hitsterSong = ref(null);
-const isHitsterPlaying = ref(false); 
+const activeHitsterSource = ref(null); // 'youtube' | 'audio'
+const isYoutubePlaying = ref(false); // Specific to YouTube
+const isHitsterPlaying = computed(() => {
+    if (activeHitsterSource.value === 'youtube') return isYoutubePlaying.value;
+    if (activeHitsterSource.value === 'audio') return isAudioPlaying.value;
+    return false;
+}); 
 
 // --- YouTube Official Player (Global) ---
 const playerRef = ref(null);
@@ -86,8 +92,8 @@ onMounted(() => {
       playerVars: { 'playsinline': 1, 'controls': 0, 'disablekb': 1, 'origin': window.location.origin },
       events: {
         'onStateChange': (event) => {
-            if (event.data === window.YT.PlayerState.PLAYING) isHitsterPlaying.value = true;
-            else if (event.data === window.YT.PlayerState.PAUSED || event.data === window.YT.PlayerState.ENDED) isHitsterPlaying.value = false;
+            if (event.data === window.YT.PlayerState.PLAYING) isYoutubePlaying.value = true;
+            else if (event.data === window.YT.PlayerState.PAUSED || event.data === window.YT.PlayerState.ENDED) isYoutubePlaying.value = false;
         },
         'onError': (event) => { 
             console.error("YouTube Error", event.data); 
@@ -132,7 +138,20 @@ const reset = () => {
     currentCoverA.value = null;
     currentCoverB.value = null;
     hitsterSong.value = null;
+    activeHitsterSource.value = null;
     scanError.value = null;
+};
+
+const returnToScanner = () => {
+    // Stop current playback
+    if (playerRef.value && playerRef.value.stopVideo) playerRef.value.stopVideo();
+    stopAudio();
+    
+    // Reset specific Hitster state but keep Game Mode
+    hitsterSong.value = null;
+    activeHitsterSource.value = null;
+    scanError.value = null;
+    currentView.value = 'scanner';
 };
 
 // --- Hitster Specifics ---
@@ -151,15 +170,26 @@ const handleScan = (decodedText) => {
 };
 
 const playHitsterTrack = (resource, type) => {
+  activeHitsterSource.value = type; // Track what we are playing
+  
   if (type === 'youtube' && playerRef.value && playerRef.value.loadVideoById) {
+      stopAudio(); // Stop any running audio
       playerRef.value.loadVideoById(resource);
+  } else if (type === 'audio') {
+      if (playerRef.value && playerRef.value.stopVideo) playerRef.value.stopVideo();
+      playAudio(resource);
   }
 };
 
 const toggleHitsterPlay = () => {
-  if (!playerRef.value) return;
-  if (isHitsterPlaying.value) playerRef.value.pauseVideo();
-  else playerRef.value.playVideo();
+    if (activeHitsterSource.value === 'youtube') {
+         if (!playerRef.value) return;
+         if (isYoutubePlaying.value) playerRef.value.pauseVideo();
+         else playerRef.value.playVideo();
+    } else if (activeHitsterSource.value === 'audio') {
+        if (isAudioPlaying.value) pauseAudio();
+        else resumeAudio();
+    }
 };
 
 // --- Cover Background Handling ---
@@ -251,7 +281,7 @@ const currentModeLabel = computed(() => {
               :song="hitsterSong" 
               :is-playing="isHitsterPlaying"
               :audio-error="audioError"
-              @back="reset"
+              @back="returnToScanner"
               @play-request="playHitsterTrack"
               @toggle-play="toggleHitsterPlay"
               @set-error="(e) => audioError = e"
@@ -333,7 +363,14 @@ const currentModeLabel = computed(() => {
 .logo h1 { font-family: 'Righteous', cursive; font-size: 3.5rem; font-weight: 400; line-height: 1.2; margin: 0; background: linear-gradient(to bottom right, #ffffff 20%, #fbbf24 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 30px rgba(251, 191, 36, 0.4)); padding-bottom: 10px; }
 .logo :deep(svg) { color: #fbbf24; width: 48px; height: 48px; filter: drop-shadow(0 0 20px rgba(251, 191, 36, 0.5)); }
 .subtitle { font-size: 0.9rem; color: rgba(255, 255, 255, 0.6); text-transform: uppercase; letter-spacing: 0.4em; font-weight: 600; margin-top: 0; text-align: center; }
-@media (max-width: 600px) { .header { padding: 0.5rem; } .logo h1 { font-size: 3.5rem; } .logo :deep(svg) { width: 48px; height: 48px; } .subtitle { font-size: 0.9rem; letter-spacing: 0.4em; } }
+@media (max-width: 600px) { 
+  .header { padding: 0.5rem; padding-bottom: 0; } 
+  .logo { padding-top: 50px; }
+  .logo h1 { font-size: 3.5rem; } 
+  .logo :deep(svg) { width: 48px; height: 48px; } 
+  .subtitle { font-size: 0.9rem; letter-spacing: 0.4em; } 
+  .content { padding-top: 0.5rem; }
+}
 .content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 10; width: 100%; max-width: 100%; padding: 1.5rem; box-sizing: border-box; min-height: 0; }
 .start-screen { flex: 0 1 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; text-align: center; padding: 1rem; width: 100%; max-width: 400px; margin: 0 auto; }
 .welcome-title { font-size: 1.8rem; margin: 0; background: linear-gradient(135deg, #fff 0%, #fbbf24 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
