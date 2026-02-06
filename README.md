@@ -5,8 +5,6 @@
 
   <p>
     <strong>A premium, modern music time machine quiz. Guess the years, test your knowledge.</strong>
-    <br />
-    <a href="https://dim4k.github.io/mixera/"><strong>🌐 Play MixEra Online</strong></a>
   </p>
 
   <p>
@@ -23,9 +21,14 @@
   </p>
 </div>
 
-<br />
+</div>
 
-**MixEra** is a sleek, web-based music quiz application designed to test your musical ear and historical knowledge. Scan physical cards, browse a massive library, and compete across multiple expert modes.
+## <a id="install"></a>📱 Install on Android
+
+1.  Go to the [**Releases**](../../releases) page of this repository.
+2.  Expand the **Assets** section of the latest release.
+3.  Download the file named `MixEra-vX.X.X.apk`.
+4.  Open the file on your Android device to install it.
 
 ## <a id="features"></a>✨ Features
 
@@ -41,15 +44,17 @@
 -   **🎯 Bullseye**: The ultimate expert mode. Guess the exact year of a song on a specialized slider. Exact match = 100pts!
 -   **🔥 Timeline**: Compare mystery songs against a pivot year. Build the longest streak possible.
 -   **🎵 Blindtest**: The classic experience. Guess the artist and title with real-time feedback and discovery logic.
+-   **🧠 Memory**: Test your auditory memory! Match pairs of identical songs in this classic grid-flipping game.
 -   **📷 Hitster**: Use the built-in scanner to integrate your physical Hitster cards into the digital experience.
 
 ## <a id="tech-stack"></a>🛠️ Tech Stack
 
 -   **Framework**: [Vue.js 3](https://vuejs.org/) (Composition API)
 -   **Build Tool**: [Vite](https://vitejs.dev/) (Ultra-fast HMR)
+-   **Mobile**: [Capacitor](https://capacitorjs.com/) (Android APK)
 -   **State Management**: Vue Composables (Functional & Modular)
 -   **UI Icons**: [Lucide Vue](https://lucide.dev/)
--   **Deployment**: GitHub Actions (Full Automaton to GH Pages)
+-   **Deployment**: GitHub Actions (Full Automaton to GH Pages & Releases)
 
 ## <a id="quick-start"></a>🚀 Development
 
