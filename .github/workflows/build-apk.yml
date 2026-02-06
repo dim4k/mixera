@@ -1,18 +1,12 @@
 name: Build Android APK
 
 on:
-  push:
-    branches:
-      - main
-      - master
-  pull_request:
-    branches:
-      - main
-      - master
+  release:
+    types: [published]
 
 jobs:
   build:
-    name: Build APK
+    name: Build Release APK
     runs-on: ubuntu-latest
 
     steps:
@@ -30,13 +24,6 @@ jobs:
         run: npm run build
 
       - name: Add Capacitor Android Platform
-        # Run cap add just in case, though it should be committed usually. 
-        # Better to sync if platform exists, or add if not.
-        # Here we assume platform/android might not be in git if proxied/ignored, 
-        # but usually it IS in git. 
-        # If android folder is in .gitignore, we need to add it. 
-        # If it IS committed, we just sync.
-        # For safety/reproducibility often good to sync.
         run: npx cap sync android
 
       - name: Setup Java
@@ -48,15 +35,29 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Build APK with Gradle
+      - name: Build Release APK
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleRelease
 
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - name: Sign APK
+        id: sign_app
+        uses: r0adkll/sign-android-release@v1
         with:
-          name: mixera-debug.apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          releaseDirectory: android/app/build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          alias: ${{ secrets.KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+        env:
+          BUILD_TOOLS_VERSION: "34.0.0"
+
+      - name: Rename APK
+        run: |
+          mv ${{ steps.sign_app.outputs.signedReleaseFile }} android/app/build/outputs/apk/release/MixEra-${{ github.ref_name }}.apk
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: android/app/build/outputs/apk/release/MixEra-${{ github.ref_name }}.apk
