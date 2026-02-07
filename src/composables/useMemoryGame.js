@@ -6,22 +6,22 @@ import { useAudio } from './useAudio';
 const memoryHistory = ref([]);
 const memoryBestScore = ref(0); // Lower moves is better, or solved count? Let's say pairs solved.
 
+// Global State (Singleton)
+const cards = ref([]); 
+const gameState = ref('idle'); // 'idle', 'loading', 'playing', 'won'
+const moves = ref(0);
+const matchedPairs = ref(0);
+const isLoading = ref(false);
+const error = ref(null);
+const currentPlayingTrack = ref(null);
+
+// Internal Global
+const flippedCards = ref([]); // [cardIndex1, cardIndex2]
+let lockBoard = false;
+let gameSessionId = 0;
+
 export function useMemoryGame() {
     const { playAudio, stopAudio, fadeOutAudio } = useAudio();
-
-    // Game State
-    const cards = ref([]); // { id, uniqueId, type: 'artist'|'song', value: artistName|songData, isFlipped, isMatched }
-    const gameState = ref('idle'); // 'idle', 'loading', 'playing', 'won'
-    const moves = ref(0);
-    const matchedPairs = ref(0);
-    const isLoading = ref(false);
-    const error = ref(null);
-    const currentPlayingTrack = ref(null);
-
-    // Internal
-    const flippedCards = ref([]); // [cardIndex1, cardIndex2]
-    let lockBoard = false; // Prevent clicking while waiting for unflip
-    let gameSessionId = 0;
 
     // --- Helpers ---
 
@@ -235,7 +235,7 @@ export function useMemoryGame() {
 
     const resetMemoryGame = () => {
         stopAudio();
-        initMemoryGame(); // Auto restart or just clear? User likely calls init manually.
+        gameState.value = 'idle'; // Reset state to idle
     };
 
     return {

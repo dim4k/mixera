@@ -7,7 +7,8 @@ import TimelinePlayer from './components/TimelinePlayer.vue';
 import BullseyePlayer from './components/BullseyePlayer.vue';
 import MemoryGame from './components/MemoryGame.vue';
 import { resolveHitsterUrl } from './utils/resolver';
-import { Music, Scan, Disc, Calendar, Target, Brain } from 'lucide-vue-next';
+import Loader from './components/Loader.vue';
+import { Music, Scan, Disc, Calendar, Target, Brain, ChevronRight } from 'lucide-vue-next';
 
 // Composables
 import { useBlindtestGame } from './composables/useBlindtestGame';
@@ -39,6 +40,7 @@ const {
     timelineStreak,
     timelineFeedback,
     timelineCorrectAnswer,
+    isLoading: tlLoading,
     startTimelineRound,
     handleTimelineGuess,
     resetTimelineGame
@@ -59,6 +61,7 @@ const {
 
 const {
     currentPlayingTrack: memSong,
+    isLoading: memLoading,
     initMemoryGame,
     resetMemoryGame
 } = useMemoryGame();
@@ -83,6 +86,18 @@ const isHitsterPlaying = computed(() => {
     if (activeHitsterSource.value === 'youtube') return isYoutubePlaying.value;
     if (activeHitsterSource.value === 'audio') return isAudioPlaying.value;
     return false;
+}); 
+
+// Global Loading State
+const isLoading = computed(() => {
+    if (!hasStarted.value) return false;
+    switch (gameMode.value) {
+        case 'blindtest': return dtLoading.value;
+        case 'timeline': return tlLoading.value; // Renaming destructured prop in next step
+        case 'bullseye': return beLoading.value;
+        case 'memory': return memLoading.value; // Renaming destructured prop in next step
+        default: return false;
+    }
 }); 
 
 // --- Keep Awake Logic ---
@@ -278,28 +293,33 @@ const currentModeLabel = computed(() => {
 
     <main class="content">
       <!-- Start Screen -->
-      <div v-if="!hasStarted" class="start-screen glass-panel">
-        <h2 class="welcome-title">Mode de jeu</h2>
+      <div v-if="!hasStarted" class="start-screen">
+
         <div class="mode-selection">
             <button class="btn-primary btn-mode" @click="setGameMode('hitster')">
                <Scan size="24" />
                <div class="mode-info"><span class="mode-name">Hitster</span><span class="mode-desc">Scan & Play</span></div>
+               <ChevronRight :size="20" style="margin-left: auto; opacity: 0.5;" />
             </button>
             <button class="btn-primary btn-mode btn-blindtest" @click="setGameMode('blindtest')">
                <Music size="24" />
                <div class="mode-info"><span class="mode-name">Blindtest</span><span class="mode-desc">Auto-Mix Aléatoire</span></div>
+               <ChevronRight :size="20" style="margin-left: auto; opacity: 0.5;" />
             </button>
             <button class="btn-primary btn-mode btn-timeline" @click="setGameMode('timeline')">
                <Calendar size="24" />
                <div class="mode-info"><span class="mode-name">Timeline</span><span class="mode-desc">Plus ou Moins ?</span></div>
+               <ChevronRight :size="20" style="margin-left: auto; opacity: 0.5;" />
             </button>
             <button class="btn-primary btn-mode btn-bullseye" @click="setGameMode('bullseye')">
                <Target size="24" />
                <div class="mode-info"><span class="mode-name">Bullseye</span><span class="mode-desc">Année Exacte</span></div>
+               <ChevronRight :size="20" style="margin-left: auto; opacity: 0.5;" />
             </button>
             <button class="btn-primary btn-mode btn-memory" @click="setGameMode('memory')">
                <Brain size="24" />
                <div class="mode-info"><span class="mode-name">Memory</span><span class="mode-desc">Paires Audio</span></div>
+               <ChevronRight :size="20" style="margin-left: auto; opacity: 0.5;" />
             </button>
         </div>
       </div>
@@ -308,75 +328,70 @@ const currentModeLabel = computed(() => {
       <template v-else>
         <Transition name="fade" mode="out-in">
           <div :key="currentView" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-            
-            <Scanner v-if="currentView === 'scanner'" @scan="handleScan" :error="scanError" />
-            
-            <HitsterPlayer 
-              v-else-if="currentView === 'player' && hitsterSong" 
-              :song="hitsterSong" 
-              :is-playing="isHitsterPlaying"
-              :audio-error="audioError"
-              @back="returnToScanner"
-              @play-request="playHitsterTrack"
-              @toggle-play="toggleHitsterPlay"
-              @set-error="(e) => audioError = e"
-              @update-cover="updateBackground"
-            />
-            
-            <BlindtestPlayer 
-              v-else-if="currentView === 'blindtest-player' && dtSong"
-              :song="dtSong"
-              :isRevealed="dtRevealed"
-              :isPlaying="true" 
-              :progress="dtProgress"
-              v-model:yearRange="blindtestRange"
-              v-model:selectedOrigin="selectedOrigin"
-              v-model:selectedGenres="selectedGenres"
-              :isLoading="dtLoading"
-              :minYear="MIN_YEAR"
-              :maxYear="MAX_YEAR"
-              :genres="genres"
-              @update-cover="updateBackground"
-              @found-all="handleBlindtestWin"
-            />
-            <!-- Note: isPlaying for blindtest is effectively managed by useAudio internally/globally 
-                 but visual spinning might rely on a passed prop. 
-                 Since useAudio manages global Audio, we assume it's playing if not paused.
-                 However, `useAudio` exposes `isPlaying`. Can import and pass it?
-                 Wait, BlindtestPlayer prop is `isPlaying`. 
-                 We need to expose `isPlaying` from `useAudio` if we want visual feedback.
-                 Wait, BlindtestPlayer uses `isPlaying` for vinyl spin.
-                 Let's update `useBlindtestGame` to expose `isPlaying` or import `useAudio` here.
-            -->
+            <Transition name="fade" mode="out-in">
+                <Scanner v-if="currentView === 'scanner'" @scan="handleScan" :error="scanError" />
+                
+                <Loader v-else-if="isLoading" />
 
-            <TimelinePlayer
-               v-else-if="currentView === 'timeline-player' && timelineMysterySong"
-               :pivotYear="timelinePivotYear"
-               :mysterySong="timelineMysterySong"
-               :streak="timelineStreak"
-               :feedback="timelineFeedback"
-               :correctAnswer="timelineCorrectAnswer"
-               :isPlaying="true"
-               @guess="handleTimelineGuess"
-            />
-
-            <BullseyePlayer
-               v-else-if="currentView === 'bullseye-player' && beSong"
-               :song="beSong"
-               :isRevealed="beRevealed"
-               :progress="beProgress"
-               :isLoading="beLoading"
-               :totalScore="bullseyeTotalScore"
-               :bestScore="bullseyeBestScore"
-               :lastPoints="lastPointsEarned"
-               @submit-guess="submitYearGuess"
-               @next-song="startBullseyeRound"
-            />
-
-            <MemoryGame
-               v-else-if="currentView === 'memory-player'"
-            />
+                <HitsterPlayer 
+                  v-else-if="currentView === 'player' && hitsterSong" 
+                  :song="hitsterSong" 
+                  :is-playing="isHitsterPlaying"
+                  :audio-error="audioError"
+                  @back="returnToScanner"
+                  @play-request="playHitsterTrack"
+                  @toggle-play="toggleHitsterPlay"
+                  @set-error="(e) => audioError = e"
+                  @update-cover="updateBackground"
+                />
+                
+                <BlindtestPlayer 
+                  v-else-if="currentView === 'blindtest-player' && dtSong"
+                  :song="dtSong"
+                  :isRevealed="dtRevealed"
+                  :isPlaying="true" 
+                  :progress="dtProgress"
+                  v-model:yearRange="blindtestRange"
+                  v-model:selectedOrigin="selectedOrigin"
+                  v-model:selectedGenres="selectedGenres"
+                  :isLoading="dtLoading"
+                  :minYear="MIN_YEAR"
+                  :maxYear="MAX_YEAR"
+                  :genres="genres"
+                  @update-cover="updateBackground"
+                  @found-all="handleBlindtestWin"
+                />
+    
+                <TimelinePlayer
+                   v-else-if="currentView === 'timeline-player' && timelineMysterySong"
+                   :pivotYear="timelinePivotYear"
+                   :mysterySong="timelineMysterySong"
+                   :streak="timelineStreak"
+                   :feedback="timelineFeedback"
+                   :correctAnswer="timelineCorrectAnswer"
+                   :isPlaying="true"
+                   @guess="handleTimelineGuess"
+                />
+    
+                <BullseyePlayer
+                   v-else-if="currentView === 'bullseye-player' && beSong"
+                   :song="beSong"
+                   :isRevealed="beRevealed"
+                   :progress="beProgress"
+                   :isLoading="beLoading"
+                   :totalScore="bullseyeTotalScore"
+                   :bestScore="bullseyeBestScore"
+                   :lastPoints="lastPointsEarned"
+                   @submit-guess="submitYearGuess"
+                   @next-song="startBullseyeRound"
+                />
+    
+                <MemoryGame
+                   v-else-if="currentView === 'memory-player'"
+                />
+            </Transition>
           </div>
+
         </Transition>
       </template>
     </main>
@@ -413,7 +428,7 @@ const currentModeLabel = computed(() => {
 .content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 10; width: 100%; max-width: 100%; padding: 1.5rem; box-sizing: border-box; min-height: 0; }
 .start-screen { flex: 0 1 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; text-align: center; padding: 1rem; width: 100%; max-width: 400px; margin: 0 auto; }
 .welcome-title { font-size: 1.8rem; margin: 0; background: linear-gradient(135deg, #fff 0%, #fbbf24 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
-.mode-selection { display: flex; flex-direction: column; gap: 0.8rem; width: 100%; }
+.mode-selection { display: flex; flex-direction: column; gap: 1.5rem; width: 100%; padding-bottom: 2rem; }
 .btn-mode { display: flex; align-items: center; gap: 1rem; padding: 1.2rem; text-align: left; }
 .mode-info { display: flex; flex-direction: column; }
 .mode-name { font-size: 1.2rem; font-weight: 800; }

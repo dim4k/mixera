@@ -19,7 +19,7 @@ const emit = defineEmits(['guess']);
     <div class="cards-container single-card">
         <!-- Mystery Card (CENTER) -->
         <div class="card mystery-card">
-            <div class="card-cover" :class="{ 'spinning': isPlaying }">
+            <div class="card-cover">
                  <!-- Show cover ALWAYS -->
                 <img :src="mysterySong.cover" class="cover-img" />
                 

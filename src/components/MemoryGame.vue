@@ -13,18 +13,14 @@
       </button>
     </div>
 
-    <!-- Loading / Error -->
-    <div v-if="isLoading || error" class="loading-state">
-      <div v-if="error" class="error-container">
+    <!-- Error Only (Loader handled by App.vue) -->
+    <div v-if="error" class="loading-state">
+      <div class="error-container">
         <p class="error-msg">😕 Oups ! {{ error }}</p>
         <button class="btn-primary" @click="retryGame">
             <RotateCcw :size="18" style="margin-right: 8px" />
             Réessayer
         </button>
-      </div>
-      <div v-else class="loading-content">
-          <div class="spinner"></div>
-          <p class="loading-text">Préparation du plateau...</p>
       </div>
     </div>
 
@@ -40,12 +36,13 @@
         <div class="card-inner">
           
           <!-- FACE CACHÉE (Back) -->
-          <div class="card-back">
+          <div class="card-back" :class="card.type">
+            <div class="card-pattern"></div>
             <div class="card-type-indicator">
                 <span v-if="card.type === 'artist'">🎤</span>
                 <span v-else>🎵</span>
             </div>
-            <div class="logo-small">MixEra</div>
+            <div class="card-type-label">{{ card.type === 'artist' ? 'ARTISTE' : 'CHANSON' }}</div>
           </div>
 
           <!-- FACE VISIBLE (Front) -->
@@ -86,11 +83,15 @@
     </div>
 
     <!-- Win Screen overlay -->
-    <div v-if="gameState === 'won'" class="win-overlay">
-      <h2>🎉 BRAVO !</h2>
-      <p>Tu as terminé en {{ moves }} coups.</p>
-      <button class="btn-primary" @click="resetGame">Rejouer</button>
-    </div>
+    <Transition name="win-fade">
+      <div v-if="gameState === 'won'" class="win-overlay">
+        <div class="win-panel glass-panel">
+          <h2>🎉 BRAVO !</h2>
+          <p>Tu as terminé en <strong>{{ moves }}</strong> coups.</p>
+          <button class="btn-primary" @click="resetGame">Rejouer</button>
+        </div>
+      </div>
+    </Transition>
 
   </div>
 </template>
@@ -124,7 +125,7 @@ const retryGame = () => {
 };
 
 onMounted(() => {
-    initMemoryGame();
+    // initMemoryGame(); // Handled by App.vue setGameMode
 });
 
 onUnmounted(() => {
@@ -250,36 +251,83 @@ onUnmounted(() => {
     box-sizing: border-box;
 }
 
-/* FACE CACHÉE (Dos) - Glassmorphism */
+/* FACE CACHÉE (Dos) - Realistic card design */
 .card-back {
-  background: linear-gradient(135deg, rgba(30, 42, 58, 0.7) 0%, rgba(44, 62, 80, 0.7) 100%);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.15);
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 
+    0 2px 4px rgba(0,0,0,0.2),
+    0 8px 16px rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.15),
+    inset 0 -1px 0 rgba(0,0,0,0.1);
   color: #fff;
   flex-direction: column;
   transform: rotateY(0deg);
-  /* "Real Card" feel: simple pattern or texture */
-  background-image: radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, transparent 70%);
+  position: relative;
+  overflow: hidden;
 }
+
+/* ARTIST Card Back - Purple/Gold theme */
+.card-back.artist {
+  background: linear-gradient(145deg, #4a1d6a 0%, #2d1040 100%);
+  border-color: rgba(202, 138, 4, 0.5);
+}
+.card-back.artist .card-type-indicator { color: #fbbf24; }
+.card-back.artist .card-type-label { color: #fbbf24; }
+
+/* SONG Card Back - Teal/Cyan theme */
+.card-back.song {
+  background: linear-gradient(145deg, #0d4a5a 0%, #0a2a35 100%);
+  border-color: rgba(34, 211, 238, 0.5);
+}
+.card-back.song .card-type-indicator { color: #22d3ee; }
+.card-back.song .card-type-label { color: #22d3ee; }
+
+/* Card pattern overlay - subtle texture */
+.card-pattern {
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 30% 20%, rgba(255,255,255,0.08) 0%, transparent 40%),
+    radial-gradient(circle at 70% 80%, rgba(0,0,0,0.1) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+/* Inner border for card feel */
 .card-back::after {
     content: '';
     position: absolute;
-    inset: 4px; /* Inner border */
-    border: 1px solid rgba(255,255,255,0.2);
+    inset: 6px;
+    border: 2px solid rgba(255,255,255,0.15);
     border-radius: 8px;
     pointer-events: none;
 }
+
+.card-type-indicator {
+  font-size: 2rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  z-index: 1;
+}
+
+.card-type-label {
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  margin-top: 4px;
+  text-transform: uppercase;
+  z-index: 1;
+}
+
 .card-back .logo-small {
-    margin-top: 8px;
-    font-size: 0.8em;
+    position: absolute;
+    bottom: 6px;
+    right: 8px;
+    font-size: 0.5em;
     font-weight: 600;
-    letter-spacing: 1px;
-    color: rgba(255,255,255,0.8);
-    background: -webkit-linear-gradient(45deg, #FFD700, #FDB931);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    letter-spacing: 0.5px;
+    opacity: 0.3;
+    color: rgba(255,255,255,0.5);
+    z-index: 1;
 }
 
 /* FACE VISIBLE (Devant) - Hidden initially (180deg) */
@@ -367,7 +415,7 @@ onUnmounted(() => {
     text-align: center;
     min-height: 300px; /* Ensure space if empty */
 }
-/* Win Overlay stays absolute to cover grid */
+/* Win Overlay - Transparent with centered panel */
 .win-overlay {
     position: absolute;
     inset: 0;
@@ -375,11 +423,49 @@ onUnmounted(() => {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: rgba(10, 15, 30, 0.95);
     z-index: 20;
-    color: white;
+}
+
+.win-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
-    backdrop-filter: blur(10px);
+    padding: 2rem 3rem;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    color: white;
+}
+
+.win-panel h2 {
+    font-size: 2rem;
+    margin: 0 0 0.5rem 0;
+}
+
+.win-panel p {
+    font-size: 1.1rem;
+    margin: 0 0 1.5rem 0;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.win-panel strong {
+    color: #fbbf24;
+    font-size: 1.3rem;
+}
+
+/* Win Fade Transition */
+.win-fade-enter-active,
+.win-fade-leave-active {
+    transition: all 0.5s ease;
+}
+.win-fade-enter-from,
+.win-fade-leave-to {
+    opacity: 0;
+    transform: scale(0.9);
 }
 
 .loading-content, .error-container {
@@ -410,22 +496,6 @@ onUnmounted(() => {
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-.spinner {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, #FFD700, #FDB931);
-    -webkit-mask: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zm0 9l2.5-1.25L12 8.5l-2.5 1.25L12 11zm0 2.5l-5-2.5-5 2.5L12 22l10-8.5-5-2.5-5 2.5z"/></svg>') no-repeat center / contain;
-    mask: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zm0 9l2.5-1.25L12 8.5l-2.5 1.25L12 11zm0 2.5l-5-2.5-5 2.5L12 22l10-8.5-5-2.5-5 2.5z"/></svg>') no-repeat center / contain;
-    animation: pulse 1.5s ease-in-out infinite;
-    margin-bottom: 20px;
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
-}
-
-@keyframes pulse {
-    0% { transform: scale(0.95); opacity: 0.8; }
-    50% { transform: scale(1.1); opacity: 1; filter: drop-shadow(0 0 10px #FFD700); }
-    100% { transform: scale(0.95); opacity: 0.8; }
-}
 
 /* FACE CACHÉE (Dos) - Textured Glass */
 .card-back {
