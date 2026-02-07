@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Righteous&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Righteous&display=swap");
 
 :root {
   --color-bg: #0a0a0a;
@@ -7,15 +7,15 @@
   --color-primary-glow: rgba(202, 138, 4, 0.5);
   --color-text-main: #ffffff;
   --color-text-muted: #a1a1a9;
-  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-family: "Inter", system-ui, -apple-system, sans-serif;
 }
 
 body {
   margin: 0;
   overflow: hidden; /* Prevent body scroll */
-  background: 
-    radial-gradient(at 0% 0%, hsla(280, 50%, 15%, 1) 0, transparent 50%), 
-    radial-gradient(at 50% 100%, hsla(340, 60%, 20%, 1) 0, transparent 50%), 
+  background:
+    radial-gradient(at 0% 0%, hsla(280, 50%, 15%, 1) 0, transparent 50%),
+    radial-gradient(at 50% 100%, hsla(340, 60%, 20%, 1) 0, transparent 50%),
     radial-gradient(at 100% 0%, hsla(35, 70%, 15%, 1) 0, transparent 50%);
   background-color: #120515;
   background-size: 200% 200%;
@@ -35,9 +35,15 @@ html {
 }
 
 @keyframes gradient-animation {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 #app {
@@ -77,15 +83,15 @@ button:focus {
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.15); /* Crisper border */
   border-radius: 24px;
-  box-shadow: 
+  box-shadow:
     0 4px 30px rgba(0, 0, 0, 0.1),
     inset 0 0 0 1px rgba(255, 255, 255, 0.1); /* Inner rim */
 }
 
 .btn-primary {
   background: linear-gradient(
-    145deg, 
-    rgba(255, 255, 255, 0.1) 0%, 
+    145deg,
+    rgba(255, 255, 255, 0.1) 0%,
     rgba(255, 255, 255, 0.05) 100%
   );
   backdrop-filter: blur(20px);
@@ -100,7 +106,7 @@ button:focus {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  box-shadow: 
+  box-shadow:
     0 4px 15px rgba(0, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.3); /* Inner top highlight */
 }
@@ -113,14 +119,14 @@ button:focus {
 
 .btn-primary:hover {
   background: linear-gradient(
-    145deg, 
-    rgba(255, 255, 255, 0.15) 0%, 
+    145deg,
+    rgba(255, 255, 255, 0.15) 0%,
     rgba(255, 255, 255, 0.08) 100%
   );
   border-color: rgba(255, 255, 255, 0.5);
-  box-shadow: 
-    0 8px 30px rgba(0, 0, 0, 0.3), /* Stronger glow */
-    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.3),
+    /* Stronger glow */ inset 0 1px 0 rgba(255, 255, 255, 0.4),
     0 0 20px rgba(255, 255, 255, 0.1);
   transform: translateY(-2px);
 }
@@ -132,194 +138,219 @@ button:focus {
 
 /* Player Root Container */
 .player-root {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* Player Panel - Dark Glass Effect */
 .player-panel {
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 1.5rem 1.5rem 1rem 1.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
-    position: relative;
-    user-select: none;
-    -webkit-user-select: none;
-    box-sizing: border-box;
-    overflow: hidden;
-    /* Glass Panel Effect */
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 24px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+  box-sizing: border-box;
+  overflow: hidden;
+  /* Glass Panel Effect */
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 /* Inner Content Container */
 .player-content-inner {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  width: 100%;
 }
 
 /* --------------- VINYL COMPONENT --------------- */
 .vinyl-container {
-    width: 220px;
-    height: 220px;
-    cursor: pointer;
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  width: 220px;
+  height: 220px;
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-.vinyl-container:active { transform: scale(0.95); }
+.vinyl-container:active {
+  transform: scale(0.95);
+}
 
 .vinyl-record {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: repeating-radial-gradient(#111 0, #111 2px, #222 3px, #111 4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: repeating-radial-gradient(#111 0, #111 2px, #222 3px, #111 4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  position: relative;
 }
 
 .vinyl-label {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: var(--color-primary);
-    position: relative;
-    overflow: hidden;
-    border: 3px solid #111;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  position: relative;
+  overflow: hidden;
+  border: 3px solid #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .label-bg {
-    position: absolute;
-    inset: 0;
-    background-size: cover;
-    background-position: center;
-    transition: filter 0.5s ease;
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: filter 0.5s ease;
 }
-.label-bg.blurred { filter: blur(8px); }
-.label-bg.mystery { filter: blur(15px) brightness(0.6); }
+.label-bg.blurred {
+  filter: blur(8px);
+}
+.label-bg.mystery {
+  filter: blur(15px) brightness(0.6);
+}
 
 .control-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s;
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 .control-overlay.show-overlay,
-.vinyl-container:hover .control-overlay { opacity: 1; }
-
-@media (max-width: 768px) {
-    .control-overlay { opacity: 1; }
+.vinyl-container:hover .control-overlay {
+  opacity: 1;
 }
 
-.spinning { animation: spin 4s linear infinite; }
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@media (max-width: 768px) {
+  .control-overlay {
+    opacity: 1;
+  }
+}
+
+.spinning {
+  animation: spin 4s linear infinite;
+}
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 /* --------------- SONG INFO BLOCK --------------- */
 .song-info {
-    text-align: center;
-    min-height: 100px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
+  text-align: center;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 
-.track-title { 
-    font-size: 1.6rem; 
-    font-weight: 800; 
-    color: #fff; 
-    margin: 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.track-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.track-artist { 
-    font-size: 1.1rem; 
-    color: #fbbf24; 
-    font-weight: 700; 
-    text-transform: uppercase; 
-    margin: 0.5rem 0 0 0; 
+.track-artist {
+  font-size: 1.1rem;
+  color: #fbbf24;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin: 0.5rem 0 0 0;
 }
 
 .mystery-text {
-    font-family: 'Righteous', cursive;
-    font-size: 1.4rem;
-    letter-spacing: 0.3rem;
-    color: rgba(255,255,255,0.5);
+  font-family: "Righteous", cursive;
+  font-size: 1.4rem;
+  letter-spacing: 0.3rem;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 /* --------------- ACTION AREA --------------- */
-.action-area { 
-    width: 100%; 
-    min-height: 120px; 
-    display: flex; 
-    flex-direction: column; 
-    gap: 1.5rem;
+.action-area {
+  width: 100%;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 /* Gold Submit Button */
 .btn-gold {
-    background: linear-gradient(135deg, #fbbf24, #d97706);
-    color: #000;
-    font-weight: 900;
-    padding: 14px 24px;
-    border-radius: 12px;
-    border: none;
-    box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    text-transform: uppercase;
-    font-size: 1rem;
-    justify-content: center;
+  background: linear-gradient(135deg, #fbbf24, #d97706);
+  color: #000;
+  font-weight: 900;
+  padding: 14px 24px;
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  text-transform: uppercase;
+  font-size: 1rem;
+  justify-content: center;
 }
-.btn-gold:hover { filter: brightness(1.1); transform: translateY(-2px); }
-.btn-gold:active { transform: scale(0.95); }
+.btn-gold:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+.btn-gold:active {
+  transform: scale(0.95);
+}
 
 /* Timer Bar */
 .timer-bar {
-    width: 100%;
-    height: 6px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
-    overflow: hidden;
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
 }
 
 .timer-progress {
-    height: 100%;
-    background: linear-gradient(90deg, #fbbf24, #f59e0b);
-    border-radius: 3px;
-    transition: width 0.1s linear;
+  height: 100%;
+  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+  border-radius: 3px;
+  transition: width 0.1s linear;
 }
 
 /* --------------- UTILITY ANIMATIONS --------------- */
-.animate-spin { animation: spin 1s linear infinite; }
-
+.animate-spin {
+  animation: spin 1s linear infinite;
+}

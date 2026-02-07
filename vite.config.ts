@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
 // https://vitejs.dev/config/
-export default defineConfig(({ command }) => ({
+export default defineConfig(() => ({
   base: './',
 
   plugins: [vue()],
@@ -21,7 +21,7 @@ export default defineConfig(({ command }) => ({
         target: 'https://api.deezer.com', 
         changeOrigin: true, 
         secure: false,
-        rewrite: (path) => path.replace(/^\/api\/deezer/, '') 
+        rewrite: (path: string) => path.replace(/^\/api\/deezer/, '') 
       }
     }
 
