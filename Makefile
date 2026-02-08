@@ -24,7 +24,7 @@ help:
 # --- Main Command: Build APK ---
 apk:
 	@echo "Building APK..."
-	docker compose run --rm android-build bash -c "npm install && npm run build && npx capacitor-assets generate --android && npx cap sync android && cd android && ./gradlew assembleDebug"
+	docker compose run --rm android-build bash -c "npm install && npm run build && npx @capacitor/assets generate --android && npx cap sync android && cd android && ./gradlew assembleDebug"
 	@echo "APK available at: android/app/build/outputs/apk/debug/app-debug.apk"
 
 # --- Development ---
@@ -41,7 +41,7 @@ sync:
 	$(DOCKER_RUN) npx cap sync android
 
 assets:
-	$(DOCKER_RUN) npx capacitor-assets generate --android
+	$(DOCKER_RUN) npx @capacitor/assets generate --android
 
 shell:
 	docker compose run --rm -it app sh
