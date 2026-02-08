@@ -10,7 +10,7 @@
   <p>
     <img src="https://img.shields.io/badge/Vue.js-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white" alt="Vue.js" />
     <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
-    <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript" />
+    <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
     <img src="https://img.shields.io/badge/Lucide-FF69B4?style=for-the-badge&logo=lucide&logoColor=white" alt="Lucide Icons" />
   </p>
   
@@ -58,24 +58,23 @@
 
 ## <a id="quick-start"></a>🚀 Development
 
-### 1. Install dependencies
+### 1. Requirements
 
-```bash
-npm install
-```
+- Docker (Desktop or Engine)
+- Make (optional, but recommended)
 
-### 2. Start Project (Development Mode)
+### 2. Available Commands
 
-```bash
-npm run dev
-```
+All development tasks are handled via Docker to ensure a consistent environment.
 
-### 3. Build for Production
-
-```bash
-npm run build
-```
-
+| Command | Description |
+| :--- | :--- |
+| `make dev` | Start development server at http://localhost:5173 |
+| `make check` | Run all checks (Lint + Type Check) |
+| `make lint` | Run ESLint fix |
+| `make format` | Run Prettier format |
+| `make build` | Build web assets for production |
+| `make apk` | Build Android APK (Full pipeline) |
 ---
 
 _Made with ❤️ for music lovers and trivia fans._
